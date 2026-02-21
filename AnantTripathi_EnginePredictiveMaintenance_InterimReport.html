@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AnantTripathi_EnginePredictiveMaintenance_InterimReport</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="interim-project-report">Interim Project Report</h1>
+<h2 id="engine-predictive-maintenance-mlops-pipeline">Engine Predictive Maintenance – MLOps Pipeline</h2>
+<p><strong>Learner Name:</strong> Anant Tripathi<br />
+<strong>Project Name:</strong> Engine Predictive Maintenance<br />
+<strong>Date:</strong> February 2026</p>
+<hr />
+<h2 id="executive-summary">1. Executive Summary</h2>
+<p>This interim report presents the progress of an end-to-end MLOps pipeline for <strong>Engine Predictive Maintenance</strong>. The pipeline automates data registration, exploratory data analysis, data preparation, and model building with experimentation tracking. The system classifies engine conditions (Normal vs. Maintenance Required) using sensor data and deploys the trained model for real-time predictions.</p>
+<hr />
+<h2 id="data-registration">2. Data Registration</h2>
+<h3 id="methodology">2.1 Methodology</h3>
+<p>A master folder structure is created with a <code>data</code> subfolder. The raw engine sensor dataset is registered on the Hugging Face Dataset Hub at <code>ananttripathiak/engine-maintenance-dataset</code> using the <code>data_register.py</code> script. This enables version control, reproducibility, and seamless integration with downstream pipeline steps.</p>
+<h3 id="implementation">2.2 Implementation</h3>
+<ul>
+<li><strong>Master folder:</strong> <code>engine_maintenance_project/</code></li>
+<li><strong>Data subfolder:</strong> <code>engine_maintenance_project/data/</code></li>
+<li><strong>Dataset:</strong> <code>engine_data.csv</code> (19,535 rows × 7 columns)</li>
+<li><strong>Hugging Face Repo:</strong> <a href="https://huggingface.co/datasets/ananttripathiak/engine-maintenance-dataset">ananttripathiak/engine-maintenance-dataset</a></li>
+</ul>
+<h3 id="business-implication">2.3 Business Implication</h3>
+<p>Centralized data registration reduces manual errors, ensures consistency across experiments, and supports collaboration. Version-controlled datasets enable audit trails and reproducibility for compliance and quality assurance.</p>
+<hr />
+<h2 id="exploratory-data-analysis">3. Exploratory Data Analysis</h2>
+<h3 id="data-collection-and-background">3.1 Data Collection and Background</h3>
+<p>The engine sensor dataset contains real-time measurements from various engines under different operating conditions. Data is collected from sensors monitoring critical engine parameters indicative of engine health and maintenance needs.</p>
+<h3 id="data-overview">3.2 Data Overview</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Rows</td>
+<td>19,535</td>
+</tr>
+<tr class="even">
+<td>Columns</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td>Missing Values</td>
+<td>None</td>
+</tr>
+<tr class="even">
+<td>Data Types</td>
+<td>All numerical (float64, int64)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Features:</strong> Engine_RPM, Lub_Oil_Pressure, Fuel_Pressure, Coolant_Pressure, Lub_Oil_Temperature, Coolant_Temperature<br />
+<strong>Target:</strong> Engine_Condition (0: Normal, 1: Maintenance Required)</p>
+<h3 id="univariate-analysis">3.3 Univariate Analysis</h3>
+<p><strong>Figure 1: Engine Condition Distribution</strong></p>
+<figure>
+<img src="figures/fig1_target_distribution.png" alt="Figure 1: Engine Condition Distribution" /><figcaption aria-hidden="true">Figure 1: Engine Condition Distribution</figcaption>
+</figure>
+<ul>
+<li>Normal (0): 36.9%</li>
+<li>Maintenance Required (1): 63.1%</li>
+<li><strong>Observation:</strong> Moderate class imbalance; stratified sampling recommended.</li>
+</ul>
+<p><strong>Figure 2: Univariate Distributions of Sensor Features</strong></p>
+<figure>
+<img src="figures/fig2_univariate.png" alt="Figure 2: Univariate Distributions" /><figcaption aria-hidden="true">Figure 2: Univariate Distributions</figcaption>
+</figure>
+<ul>
+<li>All features are continuous with varying ranges.</li>
+<li>Engine_RPM shows wider spread; pressure and temperature sensors have narrower distributions.</li>
+<li>No extreme skewness detected; StandardScaler appropriate for normalization.</li>
+</ul>
+<p><strong>Figure 3: Box Plots – Outlier Detection</strong></p>
+<figure>
+<img src="figures/fig3_boxplots.png" alt="Figure 3: Box Plots" /><figcaption aria-hidden="true">Figure 3: Box Plots</figcaption>
+</figure>
+<ul>
+<li>Some outliers present in pressure and temperature readings; median imputation used for any future missing values.</li>
+</ul>
+<h3 id="bivariate-analysis">3.4 Bivariate Analysis</h3>
+<p><strong>Figure 4: Bivariate Analysis – Features by Engine Condition</strong></p>
+<figure>
+<img src="figures/fig4_bivariate.png" alt="Figure 4: Bivariate Analysis" /><figcaption aria-hidden="true">Figure 4: Bivariate Analysis</figcaption>
+</figure>
+<ul>
+<li>Features show different distributions between Normal and Maintenance Required classes.</li>
+<li>Temperature and pressure readings are key discriminators.</li>
+<li><strong>Business Insight:</strong> Real-time sensor monitoring can enable proactive maintenance scheduling.</li>
+</ul>
+<h3 id="multivariate-analysis">3.5 Multivariate Analysis</h3>
+<p><strong>Figure 5: Correlation Heatmap</strong></p>
+<figure>
+<img src="figures/fig5_correlation.png" alt="Figure 5: Correlation Heatmap" /><figcaption aria-hidden="true">Figure 5: Correlation Heatmap</figcaption>
+</figure>
+<table>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Correlation with Target</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fuel_Pressure</td>
+<td>0.12</td>
+</tr>
+<tr class="even">
+<td>Lub_Oil_Pressure</td>
+<td>0.06</td>
+</tr>
+<tr class="odd">
+<td>Coolant_Pressure</td>
+<td>-0.02</td>
+</tr>
+<tr class="even">
+<td>Coolant_Temperature</td>
+<td>-0.05</td>
+</tr>
+<tr class="odd">
+<td>Lub_Oil_Temperature</td>
+<td>-0.09</td>
+</tr>
+<tr class="even">
+<td>Engine_RPM</td>
+<td>-0.27</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Observation:</strong> Engine_RPM has the strongest (negative) correlation with maintenance need. Lower RPM combined with abnormal pressure/temperature patterns may indicate fault conditions.</p>
+<h3 id="eda-insights-and-observations">3.6 EDA Insights and Observations</h3>
+<ol type="1">
+<li><strong>Data Quality:</strong> No missing values; all numerical features.</li>
+<li><strong>Class Balance:</strong> Normal 36.9% vs Maintenance 63.1% – stratified split used.</li>
+<li><strong>Predictive Potential:</strong> Features show different distributions by target.</li>
+<li><strong>Key Indicators:</strong> Temperature and pressure sensors are critical.</li>
+<li><strong>Recommendations:</strong> Use stratified train-test split; apply StandardScaler; consider Random Forest or XGBoost for classification.</li>
+</ol>
+<hr />
+<h2 id="data-preparation">4. Data Preparation</h2>
+<h3 id="methodology-1">4.1 Methodology</h3>
+<ul>
+<li>Load data from Hugging Face or local file</li>
+<li>Clean: rename columns, drop duplicates, handle missing values (median imputation)</li>
+<li>Split: 80% train, 20% test, stratified by target</li>
+<li>Save locally and upload train/test splits to Hugging Face dataset repo</li>
+</ul>
+<h3 id="results">4.2 Results</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Split</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Train</td>
+<td>15,628</td>
+</tr>
+<tr class="even">
+<td>Test</td>
+<td>3,907</td>
+</tr>
+</tbody>
+</table>
+<p>Train and test datasets saved as <code>data/train.csv</code> and <code>data/test.csv</code> and uploaded to the Hugging Face dataset repository.</p>
+<h3 id="business-implication-1">4.3 Business Implication</h3>
+<p>Proper data preparation ensures model generalizability. Stratified splitting preserves class distribution, and versioned datasets support reproducible model retraining.</p>
+<hr />
+<h2 id="model-building-with-experimentation-tracking">5. Model Building with Experimentation Tracking</h2>
+<h3 id="methodology-2">5.1 Methodology</h3>
+<ul>
+<li><strong>Algorithm:</strong> Random Forest Classifier</li>
+<li><strong>Preprocessing:</strong> StandardScaler (scikit-learn Pipeline)</li>
+<li><strong>Hyperparameter Tuning:</strong> RandomizedSearchCV (12 iterations, 3-fold CV, F1 scoring)</li>
+<li><strong>Experiment Tracking:</strong> MLflow (parameters, metrics, artifacts)</li>
+<li><strong>Model Registry:</strong> Best model saved locally and uploaded to Hugging Face Model Hub</li>
+</ul>
+<p><strong>Hyperparameter Search Space:</strong> - n_estimators: [100, 200, 300] - max_depth: [None, 10, 20] - min_samples_split: [2, 5] - min_samples_leaf: [1, 2]</p>
+<h3 id="best-parameters">5.2 Best Parameters</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n_estimators</td>
+<td>300</td>
+</tr>
+<tr class="even">
+<td>max_depth</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td>min_samples_split</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>min_samples_leaf</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="model-performance-metrics">5.3 Model Performance Metrics</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Train</th>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Accuracy</td>
+<td>0.77</td>
+<td>0.66</td>
+</tr>
+<tr class="even">
+<td>F1-Score</td>
+<td>0.83</td>
+<td>0.76</td>
+</tr>
+<tr class="odd">
+<td>ROC-AUC</td>
+<td>—</td>
+<td>0.70</td>
+</tr>
+</tbody>
+</table>
+<h3 id="classification-report-test-set">5.4 Classification Report (Test Set)</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Class</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1-Score</th>
+<th>Support</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Normal</td>
+<td>0.57</td>
+<td>0.35</td>
+<td>0.43</td>
+<td>1,444</td>
+</tr>
+<tr class="even">
+<td>Maintenance</td>
+<td>0.69</td>
+<td>0.85</td>
+<td>0.76</td>
+<td>2,463</td>
+</tr>
+<tr class="odd">
+<td><strong>Accuracy</strong></td>
+<td></td>
+<td></td>
+<td><strong>0.66</strong></td>
+<td><strong>3,907</strong></td>
+</tr>
+<tr class="even">
+<td>Macro Avg</td>
+<td>0.63</td>
+<td>0.60</td>
+<td>0.60</td>
+<td>3,907</td>
+</tr>
+<tr class="odd">
+<td>Weighted Avg</td>
+<td>0.65</td>
+<td>0.66</td>
+<td>0.64</td>
+<td>3,907</td>
+</tr>
+</tbody>
+</table>
+<h3 id="confusion-matrix-test-set">5.5 Confusion Matrix (Test Set)</h3>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Predicted Normal</th>
+<th>Predicted Maintenance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Actual Normal</strong></td>
+<td>504</td>
+<td>940</td>
+</tr>
+<tr class="even">
+<td><strong>Actual Maintenance</strong></td>
+<td>377</td>
+<td>2,086</td>
+</tr>
+</tbody>
+</table>
+<h3 id="business-implications">5.6 Business Implications</h3>
+<ul>
+<li><strong>Recall for Maintenance (0.85):</strong> The model correctly identifies 85% of engines requiring maintenance, reducing risk of missed failures.</li>
+<li><strong>Precision for Maintenance (0.69):</strong> Some false positives; acceptable for preventive maintenance where over-inspection is preferable to missed failures.</li>
+<li><strong>ROC-AUC (0.70):</strong> Moderate discriminative ability; room for improvement with additional features or alternative algorithms.</li>
+</ul>
+<hr />
+<h2 id="conclusion">6. Conclusion</h2>
+<p>The interim pipeline successfully implements: 1. <strong>Data Registration</strong> on Hugging Face 2. <strong>Comprehensive EDA</strong> with univariate, bivariate, and multivariate analysis 3. <strong>Data Preparation</strong> with train/test splits and versioning 4. <strong>Model Building</strong> with Random Forest, hyperparameter tuning, MLflow tracking, and Hugging Face model registration</p>
+<p>The model achieves a test F1-score of 0.76 and ROC-AUC of 0.70, with strong recall for the maintenance class. The pipeline is ready for deployment and GitHub Actions automation in the final submission.</p>
+<hr />
+<h2 id="appendix">Appendix</h2>
+<p><em>Raw code, full model logs, and extended outputs are available in the accompanying HTML notebook: <code>AnantTripathi_EnginePredictiveMaintenance_Notebook.html</code>.</em></p>
+<hr />
+<p><em>Page 1 of 1</em></p>
+</body>
+</html>

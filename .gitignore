@@ -1,0 +1,32 @@
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# MLflow
+mlruns/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.venv/
+venv/
+env/
+
+# Secrets / env
+.env
+.env.local
+*.pem
+
+# Model artifacts (re-generated or from HF)
+*.joblib
+
+# Optional: uncomment if you don't want to commit data (can re-run notebook or load from HF)
+# data/
+# engine_maintenance_project/
+
+# OS
+.DS_Store
+Thumbs.db
