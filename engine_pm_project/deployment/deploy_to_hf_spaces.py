@@ -15,20 +15,21 @@ This creates or updates a Space (e.g. ananttripathiak/engine-pm-streamlit) with:
 """
 
 import os
+import sys
 from pathlib import Path
 
 def main():
     token = os.getenv("HF_TOKEN")
     if not token:
-        print("Set HF_TOKEN to push to Hugging Face Spaces.")
-        return
+        print("::error::HF_TOKEN is not set. Add it in GitHub: Settings → Secrets and variables → Actions → New repository secret (name: HF_TOKEN).")
+        sys.exit(1)
 
     try:
         from huggingface_hub import HfApi, create_repo
         from huggingface_hub.utils import RepositoryNotFoundError
     except ImportError:
         print("Install: pip install huggingface_hub")
-        return
+        sys.exit(1)
 
     api = HfApi(token=token)
     space_id = "ananttripathiak/engine-pm-streamlit"
@@ -74,6 +75,7 @@ Predict engine condition (Normal vs Maintenance Required) from sensor readings.
             print(f"Skip (not found): {path}")
 
     print(f"Done. Open: https://huggingface.co/spaces/{space_id}")
+    sys.exit(0)
 
 
 if __name__ == "__main__":

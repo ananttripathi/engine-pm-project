@@ -1,5 +1,6 @@
 # Automated GitHub Actions Workflow - Engine Predictive Maintenance
-# Four separate jobs so the Actions UI shows: register-dataset → data-prep → model-training → deploy-hosting
+# Four separate jobs: register-dataset → data-prep → model-training → deploy-hosting
+# Deploy-hosting updates the HF Space; requires HF_TOKEN in repo Secrets (Settings → Secrets and variables → Actions).
 
 name: ML Pipeline - Engine Predictive Maintenance
 
@@ -101,8 +102,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install huggingface_hub
+      - name: Check HF_TOKEN
+        run: |
+          if [ -z "${{ secrets.HF_TOKEN }}" ]; then
+            echo "::error::HF_TOKEN not set. Add it in GitHub: Settings → Secrets and variables → Actions → New repository secret (name: HF_TOKEN). Get token from https://huggingface.co/settings/tokens"
+            exit 1
+          fi
       - name: Deploy Streamlit app to Hugging Face Spaces
         run: python engine_pm_project/deployment/deploy_to_hf_spaces.py
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        continue-on-error: true
