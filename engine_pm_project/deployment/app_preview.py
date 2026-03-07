@@ -108,13 +108,13 @@ def main():
     with st.form("sensor_inputs"):
         c1, c2 = st.columns(2)
         with c1:
-            engine_rpm = st.number_input("Engine RPM", min_value=0, max_value=5000, value=700, help="Revolutions per minute")
-            lub_oil_pressure = st.number_input("Lubricating oil pressure (bar)", min_value=0.0, max_value=15.0, value=3.0, step=0.1)
-            fuel_pressure = st.number_input("Fuel pressure (bar)", min_value=0.0, max_value=25.0, value=6.0, step=0.1)
+            engine_rpm = st.number_input("Engine RPM", min_value=0, max_value=5000, value=1437, help="Revolutions per minute")
+            lub_oil_pressure = st.number_input("Lubricating oil pressure (bar)", min_value=0.0, max_value=15.0, value=1.9, step=0.1)
+            fuel_pressure = st.number_input("Fuel pressure (bar)", min_value=0.0, max_value=25.0, value=3.8, step=0.1)
         with c2:
-            coolant_pressure = st.number_input("Coolant pressure (bar)", min_value=0.0, max_value=10.0, value=2.5, step=0.1)
-            lub_oil_temp = st.number_input("Lubricating oil temperature (°C)", min_value=50.0, max_value=120.0, value=77.0, step=0.5)
-            coolant_temp = st.number_input("Coolant temperature (°C)", min_value=50.0, max_value=200.0, value=78.0, step=0.5)
+            coolant_pressure = st.number_input("Coolant pressure (bar)", min_value=0.0, max_value=10.0, value=3.8, step=0.1)
+            lub_oil_temp = st.number_input("Lubricating oil temperature (°C)", min_value=50.0, max_value=120.0, value=77.5, step=0.5)
+            coolant_temp = st.number_input("Coolant temperature (°C)", min_value=50.0, max_value=200.0, value=79.8, step=0.5)
         submitted = st.form_submit_button("🚀 Get prediction")
 
     input_df = pd.DataFrame([{

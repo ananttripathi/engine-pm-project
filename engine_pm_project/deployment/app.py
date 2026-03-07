@@ -17,6 +17,16 @@ FEATURES = [
 MODEL_REPO = "ananttripathiak/engine-pm-model"
 MODEL_FILENAME = "best_model.joblib"
 
+# Default sensor values = row with lowest maintenance prob in train set (~44% → Normal)
+DEFAULT_SENSORS = {
+    "Engine_RPM": 1437,
+    "Lub_Oil_Pressure": 1.9,
+    "Fuel_Pressure": 3.8,
+    "Coolant_Pressure": 3.8,
+    "Lub_Oil_Temperature": 77.5,
+    "Coolant_Temperature": 79.8,
+}
+
 # Must be first Streamlit command
 st.set_page_config(
     page_title="Engine Predictive Maintenance",
@@ -157,16 +167,17 @@ def main():
         return
 
     # Inputs OUTSIDE form so values update immediately; button triggers prediction
+    # Defaults = row with lowest maintenance prob in train set (model gives ~44%)
     st.markdown("#### 📊 Sensor inputs")
     c1, c2 = st.columns(2)
     with c1:
-        engine_rpm = st.number_input("Engine RPM", min_value=0, max_value=5000, value=700, key="rpm", help="Revolutions per minute")
-        lub_oil_pressure = st.number_input("Lubricating oil pressure (bar)", min_value=0.0, max_value=15.0, value=3.0, step=0.1, key="lop")
-        fuel_pressure = st.number_input("Fuel pressure (bar)", min_value=0.0, max_value=25.0, value=6.0, step=0.1, key="fp")
+        engine_rpm = st.number_input("Engine RPM", min_value=0, max_value=5000, value=DEFAULT_SENSORS["Engine_RPM"], key="rpm", help="Revolutions per minute")
+        lub_oil_pressure = st.number_input("Lubricating oil pressure (bar)", min_value=0.0, max_value=15.0, value=DEFAULT_SENSORS["Lub_Oil_Pressure"], step=0.1, key="lop")
+        fuel_pressure = st.number_input("Fuel pressure (bar)", min_value=0.0, max_value=25.0, value=DEFAULT_SENSORS["Fuel_Pressure"], step=0.1, key="fp")
     with c2:
-        coolant_pressure = st.number_input("Coolant pressure (bar)", min_value=0.0, max_value=10.0, value=2.5, step=0.1, key="cp")
-        lub_oil_temp = st.number_input("Lubricating oil temperature (°C)", min_value=50.0, max_value=120.0, value=77.0, step=0.5, key="lot")
-        coolant_temp = st.number_input("Coolant temperature (°C)", min_value=50.0, max_value=200.0, value=78.0, step=0.5, key="ct")
+        coolant_pressure = st.number_input("Coolant pressure (bar)", min_value=0.0, max_value=10.0, value=DEFAULT_SENSORS["Coolant_Pressure"], step=0.1, key="cp")
+        lub_oil_temp = st.number_input("Lubricating oil temperature (°C)", min_value=50.0, max_value=120.0, value=DEFAULT_SENSORS["Lub_Oil_Temperature"], step=0.5, key="lot")
+        coolant_temp = st.number_input("Coolant temperature (°C)", min_value=50.0, max_value=200.0, value=DEFAULT_SENSORS["Coolant_Temperature"], step=0.5, key="ct")
     submitted = st.button("🚀 Get prediction")
 
     # Build input from CURRENT widget values (no form = always in sync)
@@ -301,8 +312,10 @@ def main():
             st.markdown(f"Oil temp.: **{lub_oil_temp}** °C")
             st.markdown(f"Coolant temp.: **{coolant_temp}** °C")
 
-        if prediction == 1 and hasattr(model, "feature_importances_"):
-            imp = model.feature_importances_
+        # Suggested focus: use final estimator (pipeline wraps scaler + clf; only clf has feature_importances_)
+        clf = model[-1] if hasattr(model, "steps") else model
+        if prediction == 1 and hasattr(clf, "feature_importances_"):
+            imp = clf.feature_importances_
             idx_sorted = sorted(range(6), key=lambda i: imp[i], reverse=True)
             top_sensors = [sensor_labels[i] for i in idx_sorted[:3]]
             extreme = []
