@@ -35,6 +35,13 @@ def main():
     space_id = "ananttripathiak/engine-pm-streamlit"
     deploy_dir = Path(__file__).resolve().parent
 
+    # Verify we're uploading the app that has DEFAULT_SENSORS (1437, etc.)
+    app_py = (deploy_dir / "app.py").read_text()
+    if "DEFAULT_SENSORS" not in app_py or "1437" not in app_py:
+        print("::error::app.py missing DEFAULT_SENSORS or 1437 - wrong file?")
+        sys.exit(1)
+    print("Verified app.py contains DEFAULT_SENSORS (1437, ...)")
+
     try:
         api.repo_info(repo_id=space_id, repo_type="space")
         print(f"Space '{space_id}' exists. Updating.")
@@ -75,6 +82,7 @@ Predict engine condition (Normal vs Maintenance Required) from sensor readings.
             print(f"Skip (not found): {path}")
 
     print(f"Done. Open: https://huggingface.co/spaces/{space_id}")
+    print("If the Space still shows old defaults (e.g. 700): open the Space → Settings → use 'Restart Space' or 'Factory reboot' to force a fresh build.")
     sys.exit(0)
 
 
