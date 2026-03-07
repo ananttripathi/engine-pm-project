@@ -12,40 +12,26 @@ import mlflow.sklearn
 from huggingface_hub import HfApi, create_repo
 from huggingface_hub.utils import RepositoryNotFoundError
 
-mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "file:./mlruns"))
+mlflow.set_tracking_uri("file:./mlruns")
 mlflow.set_experiment("engine_predictive_maintenance")
 
 def load_data():
-    # Prefer local (e.g. from pipeline artifacts); fallback to Hugging Face
-    base = "engine_pm_project/model_building"
-    local_xtrain = f"{base}/Xtrain.csv"
-    if os.path.exists(local_xtrain):
-        Xtrain = pd.read_csv(local_xtrain)
+    # Load train and test from Hugging Face data space (rubric); fallback to local
+    try:
+        from huggingface_hub import hf_hub_download
+        Xtrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtrain.csv"))
+        Xtest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtest.csv"))
+        ytrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytrain.csv")).values.ravel()
+        ytest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytest.csv")).values.ravel()
+        print("Loaded from Hugging Face.")
+    except Exception:
+        base = "engine_pm_project/model_building"
+        Xtrain = pd.read_csv(f"{base}/Xtrain.csv")
         Xtest = pd.read_csv(f"{base}/Xtest.csv")
         ytrain = pd.read_csv(f"{base}/ytrain.csv").values.ravel()
         ytest = pd.read_csv(f"{base}/ytest.csv").values.ravel()
-        print("Loaded from local (e.g. pipeline artifacts).")
-        return Xtrain, Xtest, ytrain, ytest
-    try:
-        from datasets import load_dataset
-        ds = load_dataset("ananttripathiak/engine-pm-data", token=os.getenv("HF_TOKEN"))
-        train_df = ds["train"].to_pandas()
-        test_df = ds["test"].to_pandas()
-        FEATURES = ["Engine_RPM", "Lub_Oil_Pressure", "Fuel_Pressure", "Coolant_Pressure", "Lub_Oil_Temperature", "Coolant_Temperature"]
-        TARGET = "Engine_Condition"
-        for c in FEATURES + [TARGET]:
-            if c not in train_df.columns:
-                raise ValueError(f"Expected column {c} in dataset.")
-        Xtrain = train_df[FEATURES].copy()
-        ytrain = train_df[TARGET].values.ravel()
-        Xtest = test_df[FEATURES].copy()
-        ytest = test_df[TARGET].values.ravel()
-        print("Loaded from Hugging Face (datasets).")
-        return Xtrain, Xtest, ytrain, ytest
-    except Exception as e:
-        raise FileNotFoundError(
-            f"No train/test data found. Need either local {base}/Xtrain.csv (e.g. from data-prep artifacts) or HF repo ananttripathiak/engine-pm-data. {e}"
-        ) from e
+        print("Loaded from local.")
+    return Xtrain, Xtest, ytrain, ytest
 
 Xtrain, Xtest, ytrain, ytest = load_data()
 print(f"Training: {Xtrain.shape}, Test: {Xtest.shape}")

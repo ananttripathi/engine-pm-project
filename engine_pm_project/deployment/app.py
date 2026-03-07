@@ -1,3 +1,4 @@
+
 """
 Engine Predictive Maintenance - Deployment App
 Final submission: Load model from Hugging Face hub; get inputs and save into dataframe; predict.
@@ -217,7 +218,7 @@ def main():
             </div>
             """, unsafe_allow_html=True)
 
-        # Probability as metric + progress bar (so you can verify it changes with inputs)
+        # Probability as metric + progress bar
         st.markdown("**Probability (Maintenance)**")
         fill_color = "#f59e0b" if prob_maintenance > 0.5 else "#10b981"
         st.markdown(f"""
@@ -339,3 +340,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

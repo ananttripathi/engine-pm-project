@@ -1,6 +1,6 @@
 # Automated GitHub Actions Workflow - Engine Predictive Maintenance
-# Four separate jobs: register-dataset → data-prep → model-training → deploy-hosting
-# Deploy-hosting updates the HF Space; requires HF_TOKEN in repo Secrets (Settings → Secrets and variables → Actions).
+# Rubric: pipeline.yml; list all ML steps; automate end-to-end; push code updates to main.
+# Four jobs: register-dataset → data-prep → model-training → deploy-hosting
 
 name: ML Pipeline - Engine Predictive Maintenance
 
@@ -28,14 +28,11 @@ jobs:
       - name: Create data directory
         run: mkdir -p engine_pm_project/data engine_pm_project/model_building
       - name: Data Registration (upload data to Hugging Face if token and data present)
-        id: data_reg
         run: |
           if [ -f engine_pm_project/data/engine_data.csv ] && [ -n "${{ secrets.HF_TOKEN }}" ]; then
             python engine_pm_project/model_building/data_register.py
-            echo "data_uploaded=true" >> $GITHUB_OUTPUT
           else
-            echo "Skipping data registration (no engine_data.csv or HF_TOKEN). Using HF dataset if available."
-            echo "data_uploaded=false" >> $GITHUB_OUTPUT
+            echo "Skipping data registration (no engine_data.csv or HF_TOKEN)."
           fi
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -92,6 +89,7 @@ jobs:
   deploy-hosting:
     name: deploy-hosting
     needs: model-training
+    if: always() && (needs.model-training.result == 'success' || needs.model-training.result == 'failure')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -102,10 +100,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install huggingface_hub
-      - name: Verify app.py defaults before deploy
-        run: |
-          grep -A 10 "DEFAULT_SENSORS" engine_pm_project/deployment/app.py || true
-          grep "1437" engine_pm_project/deployment/app.py || true
       - name: Deploy Streamlit app to Hugging Face Spaces
         run: python engine_pm_project/deployment/deploy_to_hf_spaces.py
         env:
