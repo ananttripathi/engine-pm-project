@@ -1,6 +1,8 @@
 # Dependencies for Model Deployment (Streamlit app on Hugging Face Spaces)
 # Used by Dockerfile and Hugging Face Spaces
+# Pin numpy<2 to avoid "MT19937 is not a known BitGenerator" when loading joblib/sklearn models
 
+numpy>=1.26,<2
 streamlit>=1.28.0
 pandas>=1.5.0
 scikit-learn>=1.2.0

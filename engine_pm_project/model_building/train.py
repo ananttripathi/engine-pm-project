@@ -12,26 +12,57 @@ import mlflow.sklearn
 from huggingface_hub import HfApi, create_repo
 from huggingface_hub.utils import RepositoryNotFoundError
 
-mlflow.set_tracking_uri("file:./mlruns")
+mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db"))
 mlflow.set_experiment("engine_predictive_maintenance")
 
+FEATURES = ["Engine_RPM", "Lub_Oil_Pressure", "Fuel_Pressure", "Coolant_Pressure", "Lub_Oil_Temperature", "Coolant_Temperature"]
+TARGET = "Engine_Condition"
+
 def load_data():
-    # Load train and test from Hugging Face data space (rubric); fallback to local
-    try:
-        from huggingface_hub import hf_hub_download
-        Xtrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtrain.csv"))
-        Xtest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtest.csv"))
-        ytrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytrain.csv")).values.ravel()
-        ytest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytest.csv")).values.ravel()
-        print("Loaded from Hugging Face.")
-    except Exception:
-        base = "engine_pm_project/model_building"
+    # 1) Prefer local (e.g. from pipeline artifact from data-prep)
+    base = "engine_pm_project/model_building"
+    if os.path.exists(f"{base}/Xtrain.csv"):
         Xtrain = pd.read_csv(f"{base}/Xtrain.csv")
         Xtest = pd.read_csv(f"{base}/Xtest.csv")
         ytrain = pd.read_csv(f"{base}/ytrain.csv").values.ravel()
         ytest = pd.read_csv(f"{base}/ytest.csv").values.ravel()
-        print("Loaded from local.")
-    return Xtrain, Xtest, ytrain, ytest
+        print("Loaded from local (e.g. pipeline artifacts).")
+        return Xtrain, Xtest, ytrain, ytest
+
+    # 2) Hugging Face Datasets API (train/test splits)
+    try:
+        from datasets import load_dataset
+        ds = load_dataset("ananttripathiak/engine-pm-data", token=os.getenv("HF_TOKEN"))
+        train_df = ds["train"].to_pandas()
+        test_df = ds["test"].to_pandas()
+        for col in FEATURES + [TARGET]:
+            if col not in train_df.columns:
+                raise KeyError(col)
+        Xtrain = train_df[FEATURES].copy()
+        ytrain = train_df[TARGET].values.ravel()
+        Xtest = test_df[FEATURES].copy()
+        ytest = test_df[TARGET].values.ravel()
+        print("Loaded from Hugging Face (datasets).")
+        return Xtrain, Xtest, ytrain, ytest
+    except Exception:
+        pass
+
+    # 3) Fallback: individual CSV files on HF
+    try:
+        from huggingface_hub import hf_hub_download
+        Xtrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtrain.csv", repo_type="dataset", token=os.getenv("HF_TOKEN")))
+        Xtest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtest.csv", repo_type="dataset", token=os.getenv("HF_TOKEN")))
+        ytrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytrain.csv", repo_type="dataset", token=os.getenv("HF_TOKEN"))).values.ravel()
+        ytest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytest.csv", repo_type="dataset", token=os.getenv("HF_TOKEN"))).values.ravel()
+        print("Loaded from Hugging Face (CSV files).")
+        return Xtrain, Xtest, ytrain, ytest
+    except Exception:
+        pass
+
+    raise FileNotFoundError(
+        "No train/test data. Need either local engine_pm_project/model_building/Xtrain.csv (e.g. from data-prep artifact) "
+        "or HF dataset ananttripathiak/engine-pm-data (Datasets API or CSV files). Set HF_TOKEN if the repo is private."
+    )
 
 Xtrain, Xtest, ytrain, ytest = load_data()
 print(f"Training: {Xtrain.shape}, Test: {Xtest.shape}")
@@ -96,9 +127,12 @@ print(classification_report(ytest, best_model.predict(Xtest), target_names=["Nor
 
 api = HfApi(token=os.getenv("HF_TOKEN"))
 repo_id = "ananttripathiak/engine-pm-model"
-try:
-    api.repo_info(repo_id=repo_id, repo_type="model")
-except RepositoryNotFoundError:
-    create_repo(repo_id=repo_id, repo_type="model", private=False)
-api.upload_file(path_or_fileobj="best_model.joblib", path_in_repo="best_model.joblib", repo_id=repo_id, repo_type="model")
-print(f"Model uploaded to {repo_id}")
+if api.token:
+    try:
+        api.repo_info(repo_id=repo_id, repo_type="model")
+    except RepositoryNotFoundError:
+        create_repo(repo_id=repo_id, repo_type="model", private=False)
+    api.upload_file(path_or_fileobj="best_model.joblib", path_in_repo="best_model.joblib", repo_id=repo_id, repo_type="model")
+    print(f"Model uploaded to {repo_id}")
+else:
+    print("Best model saved locally. Set HF_TOKEN to upload to Hugging Face.")
