@@ -1,47 +1,46 @@
-# engine-pm-project
+# Engine Predictive Maintenance
 
-# Interim Submission – Engine Predictive Maintenance
+![Title Page – Predictive Maintenance for Engine Condition Classification](title_page.png)
 
-## Files Ready for Submission
+---
 
-| File | Description |
+## Overview
+
+This project implements an **end-to-end MLOps pipeline** for **engine predictive maintenance**: classify engine condition (Normal vs Maintenance Required) from sensor readings (RPM, lubricating oil pressure, fuel pressure, coolant pressure, oil and coolant temperatures). The pipeline covers data registration, exploratory data analysis, data preparation, model building with experimentation tracking (MLflow), model deployment (Streamlit on Hugging Face Spaces), and automated workflows (GitHub Actions).
+
+## Repository structure
+
+| Path | Description |
 |------|-------------|
-| `AnantTripathi_EnginePredictiveMaintenance_Notebook.html` | Executed Python notebook in HTML format (required for verification) |
-| `AnantTripathi_EnginePredictiveMaintenance_InterimReport.md` | Interim Report in Markdown |
-| `AnantTripathi_EnginePredictiveMaintenance_InterimReport.html` | Interim Report in HTML (for PDF conversion) |
-| `engine_data.csv` | Raw dataset (for reference) |
+| `Engine_PM_Interim_Notebook_final.ipynb` | Main notebook: EDA, prep, training, deployment, and report sections |
+| `engine_pm_project/data/` | Raw data folder (e.g. `engine_data.csv`) |
+| `engine_pm_project/model_building/` | Scripts: `data_register.py`, `prep.py`, `train.py` |
+| `engine_pm_project/deployment/` | Dockerfile, Streamlit `app.py`, `requirements.txt`, `deploy_to_hf_spaces.py` |
+| `.github/workflows/pipeline.yml` | CI: register-dataset → data-prep → model-training → deploy-hosting |
 
-## How to Create the PDF Report
+## Links
 
-**Option 1 – Print to PDF (Recommended)**  
-1. Open `AnantTripathi_EnginePredictiveMaintenance_InterimReport.html` in a browser (Chrome, Safari, etc.)  
-2. Press `Cmd+P` (Mac) or `Ctrl+P` (Windows)  
-3. Choose **Save as PDF**  
-4. Save as `AnantTripathi_EnginePredictiveMaintenance_InterimReport.pdf`
+| Resource | Link |
+|----------|------|
+| **GitHub repository** | [github.com/ananttripathi/engine-pm-project](https://github.com/ananttripathi/engine-pm-project) |
+| **Hugging Face Space (Streamlit app)** | [huggingface.co/spaces/ananttripathiak/engine-pm-streamlit](https://huggingface.co/spaces/ananttripathiak/engine-pm-streamlit) |
+| **Hugging Face dataset** | [huggingface.co/datasets/ananttripathiak/engine-pm-data](https://huggingface.co/datasets/ananttripathiak/engine-pm-data) |
+| **Hugging Face model** | [huggingface.co/ananttripathiak/engine-pm-model](https://huggingface.co/ananttripathiak/engine-pm-model) |
 
-**Option 2 – Using Word/Google Docs**  
-1. Open the `.md` or `.html` file  
-2. Copy content into Word or Google Docs  
-3. Format as needed and export to PDF  
-
-**Option 3 – Using pandoc (if LaTeX installed)**  
-```bash
-pandoc AnantTripathi_EnginePredictiveMaintenance_InterimReport.md -o AnantTripathi_EnginePredictiveMaintenance_InterimReport.pdf
-```
-
-## Re-running the Notebook
-
-To re-execute and re-export the notebook:
+## Running the notebook
 
 ```bash
-cd /Users/ananttripathi/Desktop/Interim_Submission
-/opt/anaconda3/bin/jupyter nbconvert --to notebook --execute --inplace AnantTripathi_EnginePredictiveMaintenance_Notebook.ipynb
-/opt/anaconda3/bin/jupyter nbconvert --to html --output AnantTripathi_EnginePredictiveMaintenance_Notebook.html AnantTripathi_EnginePredictiveMaintenance_Notebook.ipynb
+cd /path/to/Interim_Submission
+jupyter nbconvert --to notebook --execute --inplace Engine_PM_Interim_Notebook_final.ipynb
 ```
 
-## Checklist Before Submission
+Place `title_page.png` in the same directory as the notebook so the image displays correctly.
 
-- [ ] PDF report created and named correctly  
-- [ ] HTML notebook has all outputs visible  
-- [ ] Both files submitted together  
-- [ ] File naming: `AnantTripathi_EnginePredictiveMaintenance_InterimReport.pdf` and `AnantTripathi_EnginePredictiveMaintenance_Notebook.html`
+## Deployment
+
+- **Streamlit app:** The Space runs the app in `engine_pm_project/deployment/` (Docker). It loads the model from the Hugging Face model hub and predicts from six sensor inputs.
+- **CI:** Push to `main` runs the pipeline; set **HF_TOKEN** in GitHub Secrets for data/model/Space uploads.
+
+## License
+
+See repository for license information.
