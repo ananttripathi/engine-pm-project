@@ -57,6 +57,12 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         continue-on-error: true
+      - name: Upload train/test splits for model-training
+        uses: actions/upload-artifact@v4
+        with:
+          name: train-test-splits
+          path: engine_pm_project/model_building/
+        if: hashFiles('engine_pm_project/model_building/Xtrain.csv') != ''
 
   model-training:
     name: model-training
@@ -64,6 +70,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download train/test splits from data-prep
+        uses: actions/download-artifact@v4
+        with:
+          name: train-test-splits
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -75,6 +85,7 @@ jobs:
         run: python engine_pm_project/model_building/train.py
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          MLFLOW_TRACKING_URI: sqlite:///mlflow.db
         continue-on-error: true
 
   deploy-hosting:

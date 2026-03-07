@@ -12,11 +12,20 @@ import mlflow.sklearn
 from huggingface_hub import HfApi, create_repo
 from huggingface_hub.utils import RepositoryNotFoundError
 
-mlflow.set_tracking_uri("file:./mlruns")
+mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "file:./mlruns"))
 mlflow.set_experiment("engine_predictive_maintenance")
 
 def load_data():
-    # Load train and test from Hugging Face data space (rubric); fallback to local
+    # Prefer local (e.g. from pipeline artifacts); fallback to Hugging Face
+    base = "engine_pm_project/model_building"
+    local_xtrain = f"{base}/Xtrain.csv"
+    if os.path.exists(local_xtrain):
+        Xtrain = pd.read_csv(local_xtrain)
+        Xtest = pd.read_csv(f"{base}/Xtest.csv")
+        ytrain = pd.read_csv(f"{base}/ytrain.csv").values.ravel()
+        ytest = pd.read_csv(f"{base}/ytest.csv").values.ravel()
+        print("Loaded from local (e.g. pipeline artifacts).")
+        return Xtrain, Xtest, ytrain, ytest
     try:
         from huggingface_hub import hf_hub_download
         Xtrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtrain.csv"))
@@ -24,14 +33,11 @@ def load_data():
         ytrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytrain.csv")).values.ravel()
         ytest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytest.csv")).values.ravel()
         print("Loaded from Hugging Face.")
-    except Exception:
-        base = "engine_pm_project/model_building"
-        Xtrain = pd.read_csv(f"{base}/Xtrain.csv")
-        Xtest = pd.read_csv(f"{base}/Xtest.csv")
-        ytrain = pd.read_csv(f"{base}/ytrain.csv").values.ravel()
-        ytest = pd.read_csv(f"{base}/ytest.csv").values.ravel()
-        print("Loaded from local.")
-    return Xtrain, Xtest, ytrain, ytest
+        return Xtrain, Xtest, ytrain, ytest
+    except Exception as e:
+        raise FileNotFoundError(
+            f"No train/test data found. Need either local {base}/Xtrain.csv (e.g. from data-prep artifacts) or HF repo ananttripathiak/engine-pm-data. {e}"
+        ) from e
 
 Xtrain, Xtest, ytrain, ytest = load_data()
 print(f"Training: {Xtrain.shape}, Test: {Xtest.shape}")
