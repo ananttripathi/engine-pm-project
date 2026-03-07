@@ -1,11 +1,9 @@
-# Run the Engine Predictive Maintenance notebook (e.g. on push to main).
-# Uses HF_TOKEN from repo Secrets so Hugging Face uploads work.
+# Run the Engine Predictive Maintenance notebook (manual or workflow_dispatch only).
+# Does NOT run on push - use "ML Pipeline - Engine Predictive Maintenance" for push.
 name: Run notebook
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:  # allows "Run workflow" from Actions tab
+  workflow_dispatch:  # only when you click "Run workflow" in Actions tab
 
 jobs:
   run-notebook:
