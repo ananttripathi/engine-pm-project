@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas numpy scikit-learn huggingface_hub
+          pip install pandas numpy scikit-learn huggingface_hub datasets
       - name: Data Preparation (load from HF or local, clean, split, upload splits)
         run: python engine_pm_project/model_building/prep.py
         env:
@@ -80,7 +80,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas numpy scikit-learn mlflow joblib huggingface_hub
+          pip install pandas numpy scikit-learn mlflow joblib huggingface_hub datasets
       - name: Model Building and Training (train, tune, log to MLflow, save best model)
         run: python engine_pm_project/model_building/train.py
         env:

@@ -27,12 +27,20 @@ def load_data():
         print("Loaded from local (e.g. pipeline artifacts).")
         return Xtrain, Xtest, ytrain, ytest
     try:
-        from huggingface_hub import hf_hub_download
-        Xtrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtrain.csv"))
-        Xtest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "Xtest.csv"))
-        ytrain = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytrain.csv")).values.ravel()
-        ytest = pd.read_csv(hf_hub_download("ananttripathiak/engine-pm-data", "ytest.csv")).values.ravel()
-        print("Loaded from Hugging Face.")
+        from datasets import load_dataset
+        ds = load_dataset("ananttripathiak/engine-pm-data", token=os.getenv("HF_TOKEN"))
+        train_df = ds["train"].to_pandas()
+        test_df = ds["test"].to_pandas()
+        FEATURES = ["Engine_RPM", "Lub_Oil_Pressure", "Fuel_Pressure", "Coolant_Pressure", "Lub_Oil_Temperature", "Coolant_Temperature"]
+        TARGET = "Engine_Condition"
+        for c in FEATURES + [TARGET]:
+            if c not in train_df.columns:
+                raise ValueError(f"Expected column {c} in dataset.")
+        Xtrain = train_df[FEATURES].copy()
+        ytrain = train_df[TARGET].values.ravel()
+        Xtest = test_df[FEATURES].copy()
+        ytest = test_df[TARGET].values.ravel()
+        print("Loaded from Hugging Face (datasets).")
         return Xtrain, Xtest, ytrain, ytest
     except Exception as e:
         raise FileNotFoundError(
