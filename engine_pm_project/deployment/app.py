@@ -138,6 +138,8 @@ def main():
         st.markdown("- **Temperatures** – oil & coolant (°C)")
         st.markdown("---")
         st.markdown("**Model:** Gradient Boosting (best by F1)")
+        st.markdown("---")
+        st.markdown("**Tip:** Change sensor values and click **Get prediction** again — the probability should change. If it stays the same, clear the app cache (⋮ → Clear cache) or re-run the GitHub pipeline to refresh the model on the hub.")
 
     # Header
     st.markdown("""
@@ -154,21 +156,20 @@ def main():
         st.info("Ensure the model is uploaded to the hub and HF_TOKEN is set if the repo is private.")
         return
 
-    # Input form in a card-style layout: two columns of 3 inputs each
+    # Inputs OUTSIDE form so values update immediately; button triggers prediction
     st.markdown("#### 📊 Sensor inputs")
-    with st.container():
-        with st.form("sensor_inputs"):
-            c1, c2 = st.columns(2)
-            with c1:
-                engine_rpm = st.number_input("Engine RPM", min_value=0, max_value=5000, value=700, help="Revolutions per minute")
-                lub_oil_pressure = st.number_input("Lubricating oil pressure (bar)", min_value=0.0, max_value=15.0, value=3.0, step=0.1)
-                fuel_pressure = st.number_input("Fuel pressure (bar)", min_value=0.0, max_value=25.0, value=6.0, step=0.1)
-            with c2:
-                coolant_pressure = st.number_input("Coolant pressure (bar)", min_value=0.0, max_value=10.0, value=2.5, step=0.1)
-                lub_oil_temp = st.number_input("Lubricating oil temperature (°C)", min_value=50.0, max_value=120.0, value=77.0, step=0.5)
-                coolant_temp = st.number_input("Coolant temperature (°C)", min_value=50.0, max_value=200.0, value=78.0, step=0.5)
-            submitted = st.form_submit_button("🚀 Get prediction")
+    c1, c2 = st.columns(2)
+    with c1:
+        engine_rpm = st.number_input("Engine RPM", min_value=0, max_value=5000, value=700, key="rpm", help="Revolutions per minute")
+        lub_oil_pressure = st.number_input("Lubricating oil pressure (bar)", min_value=0.0, max_value=15.0, value=3.0, step=0.1, key="lop")
+        fuel_pressure = st.number_input("Fuel pressure (bar)", min_value=0.0, max_value=25.0, value=6.0, step=0.1, key="fp")
+    with c2:
+        coolant_pressure = st.number_input("Coolant pressure (bar)", min_value=0.0, max_value=10.0, value=2.5, step=0.1, key="cp")
+        lub_oil_temp = st.number_input("Lubricating oil temperature (°C)", min_value=50.0, max_value=120.0, value=77.0, step=0.5, key="lot")
+        coolant_temp = st.number_input("Coolant temperature (°C)", min_value=50.0, max_value=200.0, value=78.0, step=0.5, key="ct")
+    submitted = st.button("🚀 Get prediction")
 
+    # Build input from CURRENT widget values (no form = always in sync)
     input_df = pd.DataFrame([{
         "Engine_RPM": engine_rpm,
         "Lub_Oil_Pressure": lub_oil_pressure,
@@ -179,9 +180,14 @@ def main():
     }])
 
     if submitted:
-        prediction = model.predict(input_df[FEATURES])[0]
-        proba = model.predict_proba(input_df[FEATURES])[0]
+        # Ensure exact feature order and single row for the pipeline
+        X = input_df[FEATURES].copy()
+        st.caption(f"Predicting with: RPM={int(engine_rpm)}, oil P={lub_oil_pressure}, fuel P={fuel_pressure}, coolant P={coolant_pressure}, oil T={lub_oil_temp}, coolant T={coolant_temp}")
+        prediction = model.predict(X)[0]
+        proba = model.predict_proba(X)[0]
+        # proba[0] = Normal, proba[1] = Maintenance Required
         prob_maintenance = float(proba[1])
+        prob_normal = float(proba[0])
         label = "Maintenance Required" if prediction == 1 else "Normal"
 
         # Visual result card
@@ -200,7 +206,7 @@ def main():
             </div>
             """, unsafe_allow_html=True)
 
-        # Probability as metric + progress bar
+        # Probability as metric + progress bar (so you can verify it changes with inputs)
         st.markdown("**Probability (Maintenance)**")
         fill_color = "#f59e0b" if prob_maintenance > 0.5 else "#10b981"
         st.markdown(f"""
@@ -209,6 +215,7 @@ def main():
         </div>
         """, unsafe_allow_html=True)
         st.metric("", f"{prob_maintenance:.1%}")
+        st.caption(f"Normal: {prob_normal:.1%} · Maintenance: {prob_maintenance:.1%} (should change when you change sensor values)")
 
         # Visual summary: radar only, full width
         st.markdown("---")
