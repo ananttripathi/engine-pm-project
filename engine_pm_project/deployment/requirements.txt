@@ -1,0 +1,9 @@
+# Dependencies for Model Deployment (Streamlit app on Hugging Face Spaces)
+# Used by Dockerfile and Hugging Face Spaces
+
+streamlit>=1.28.0
+pandas>=1.5.0
+scikit-learn>=1.2.0
+joblib>=1.2.0
+huggingface_hub>=0.17.0
+plotly>=5.14.0
