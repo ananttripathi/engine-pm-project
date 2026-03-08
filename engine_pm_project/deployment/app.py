@@ -4,6 +4,10 @@ Engine Predictive Maintenance - Deployment App
 Final submission: Load model from Hugging Face hub; get inputs and save into dataframe; predict.
 Designed for Streamlit on Hugging Face Spaces.
 """
+import os
+# Avoid indefinite hang on model download (e.g. when Space health check runs before hub responds)
+os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "60")
+
 import streamlit as st
 import pandas as pd
 import joblib
@@ -160,12 +164,8 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-    try:
-        model = load_model()
-    except Exception as e:
-        st.error(f"Could not load model from Hugging Face ({MODEL_REPO}). Error: {e}")
-        st.info("Ensure the model is uploaded to the hub and HF_TOKEN is set if the repo is private.")
-        return
+    # Load model only when needed (on first prediction), so Space startup is not blocked by model download
+    model = None
 
     # Inputs OUTSIDE form so values update immediately; button triggers prediction
     # Defaults = row with lowest maintenance prob in train set (model gives ~44%)
@@ -192,6 +192,14 @@ def main():
     }])
 
     if submitted:
+        # Load model on first prediction (keeps Space startup fast; download happens here)
+        try:
+            model = load_model()
+        except Exception as e:
+            st.error(f"Could not load model from Hugging Face ({MODEL_REPO}). Error: {e}")
+            st.info("Ensure the model is uploaded to the hub and HF_TOKEN is set if the repo is private.")
+            return
+
         # Ensure exact feature order and single row for the pipeline
         X = input_df[FEATURES].copy()
         st.caption(f"Predicting with: RPM={int(engine_rpm)}, oil P={lub_oil_pressure}, fuel P={fuel_pressure}, coolant P={coolant_pressure}, oil T={lub_oil_temp}, coolant T={coolant_temp}")

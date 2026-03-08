@@ -1,0 +1,2 @@
+# Force numpy<2 for joblib/sklearn model loading (BitGenerator compatibility)
+numpy<2.0.0

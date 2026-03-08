@@ -49,11 +49,12 @@ def main():
         create_repo(repo_id=space_id, repo_type="space", space_sdk="docker", private=False)
         print(f"Space '{space_id}' created (Docker SDK).")
 
-    # Push deployment files (Docker Space: Dockerfile + app + requirements)
+    # Push deployment files (Docker Space: Dockerfile + app + requirements + constraints)
     files_to_upload = [
         ("Dockerfile", "Dockerfile"),
         ("app.py", "app.py"),
         ("requirements.txt", "requirements.txt"),
+        ("constraints.txt", "constraints.txt"),
     ]
     readme = """---
 title: Engine Predictive Maintenance
