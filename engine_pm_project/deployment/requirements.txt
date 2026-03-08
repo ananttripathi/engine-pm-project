@@ -1,10 +1,10 @@
 # Dependencies for Model Deployment (Streamlit app on Hugging Face Spaces)
-# CRITICAL: numpy must be <2 or joblib-loaded sklearn models fail with "MT19937 is not a known BitGenerator"
-numpy>=1.26,<2.0.0
+# Used by Dockerfile and Hugging Face Spaces
+# Pin numpy<2 to avoid "MT19937 is not a known BitGenerator" when loading joblib/sklearn models
+numpy>=1.26,<2
 streamlit>=1.28.0
 pandas>=1.5.0
 scikit-learn>=1.2.0
 joblib>=1.2.0
 huggingface_hub>=0.17.0
 plotly>=5.14.0
-
